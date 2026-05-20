@@ -227,6 +227,16 @@ paths:
             application/json: { schema: { $ref: '#/components/schemas/ProductQuestion' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /stores:
+    get:
+      tags: [Public Catalog]
+      summary: "Get a list of all public stores (active suppliers)."
+      responses:
+        '200':
+          description: "A list of public store profiles."
+          content:
+            application/json: { schema: { type: array, items: { $ref: '#/components/schemas/StoreResponse' } } }
+
   # --- Shopping Cart & Orders ---
   /cart:
     get:
@@ -436,6 +446,71 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /admin/suppliers:
+    get:
+      tags: [Administration]
+      summary: "Get all suppliers (Admin only)."
+      security: [ { "BearerAuth": [] } ]
+      responses:
+        '200':
+          description: "A list of all suppliers."
+          content:
+            application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Supplier' } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Administration]
+      summary: "Create a new supplier (Admin only)."
+      security: [ { "BearerAuth": [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: '#/components/schemas/CreateSupplierRequest' } }
+      responses:
+        '201':
+          description: "Supplier created successfully."
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/Supplier' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /admin/suppliers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Administration]
+      summary: "Get a supplier by ID (Admin only)."
+      security: [ { "BearerAuth": [] } ]
+      responses:
+        '200':
+          description: "The supplier details."
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/Supplier' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Administration]
+      summary: "Update a supplier (Admin only)."
+      security: [ { "BearerAuth": [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: '#/components/schemas/Supplier' } }
+      responses:
+        '200': { description: "Supplier updated successfully." }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Administration]
+      summary: "Delete a supplier (Admin only)."
+      security: [ { "BearerAuth": [] } ]
+      responses:
+        '204': { description: "Supplier deleted successfully." }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
 
 components:
   securitySchemes:
@@ -612,3 +687,42 @@ components:
         description: { type: string, nullable: true }
         assetUrl: { type: string, format: uri }
         assetType: { type: string, enum: [IMAGE, BANNER, PDF] }
+
+    StoreResponse:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+
+    Supplier:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        contactPerson: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        cbu: { type: string, nullable: true }
+        aliasCbu: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        isActive: { type: boolean }
+
+    CreateSupplierRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        contactPerson: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        cbu: { type: string, nullable: true }
+        aliasCbu: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        isActive: { type: boolean }

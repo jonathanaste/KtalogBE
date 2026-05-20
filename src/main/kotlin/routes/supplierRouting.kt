@@ -17,6 +17,14 @@ import org.koin.ktor.ext.inject
 fun Route.supplierRouting() {
     val repository: SupplierRepository by inject()
 
+    // --- Public Routes ---
+    route("/stores") {
+        get {
+            call.respond(repository.getAllPublicStores())
+        }
+    }
+
+    // --- Admin Routes ---
     authenticate("auth-jwt") {
         route("/admin/suppliers") {
 

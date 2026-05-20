@@ -9,12 +9,15 @@ import org.jetbrains.exposed.sql.json.jsonb
 object SuppliersTable : Table("suppliers") {
     val id = varchar("id", 128)
     val name = varchar("name", 255)
+    val description = text("description").nullable()
+    val logoUrl = varchar("logo_url", 1024).nullable()
     val contactPerson = varchar("contact_person", 255).nullable()
     val phone = varchar("phone", 50).nullable()
     val email = varchar("email", 255).uniqueIndex().nullable()
     val cbu = varchar("cbu", 22).nullable()
     val aliasCbu = varchar("alias_cbu", 100).nullable()
     val notes = text("notes").nullable()
+    val isActive = bool("is_active").default(true)
 
     override val primaryKey = PrimaryKey(id)
 }

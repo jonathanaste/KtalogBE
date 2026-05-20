@@ -1,9 +1,6 @@
 package com.example.data.repository
 
-import com.example.data.model.CreateSupplierRequest
-import com.example.data.model.ProductsTable
-import com.example.data.model.Supplier
-import com.example.data.model.SuppliersTable
+import com.example.data.model.*
 import com.example.plugins.ConflictException
 import com.example.plugins.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.*
@@ -16,16 +13,34 @@ class SupplierRepositoryImpl : SupplierRepository {
     private fun resultRowToSupplier(row: ResultRow) = Supplier(
         id = row[SuppliersTable.id],
         name = row[SuppliersTable.name],
+        description = row[SuppliersTable.description],
+        logoUrl = row[SuppliersTable.logoUrl],
         contactPerson = row[SuppliersTable.contactPerson],
         phone = row[SuppliersTable.phone],
         email = row[SuppliersTable.email],
         cbu = row[SuppliersTable.cbu],
         aliasCbu = row[SuppliersTable.aliasCbu],
-        notes = row[SuppliersTable.notes]
+        notes = row[SuppliersTable.notes],
+        isActive = row[SuppliersTable.isActive]
     )
 
     override suspend fun getAllSuppliers(): List<Supplier> = dbQuery {
         SuppliersTable.selectAll().map(::resultRowToSupplier)
+    }
+
+    override suspend fun getAllPublicStores(): List<StoreResponse> = dbQuery {
+        SuppliersTable
+            .selectAll()
+            .where { SuppliersTable.isActive eq true }
+            .map {
+                StoreResponse(
+                    id = it[SuppliersTable.id],
+                    name = it[SuppliersTable.name],
+                    description = it[SuppliersTable.description],
+                    logoUrl = it[SuppliersTable.logoUrl],
+                    phone = it[SuppliersTable.phone]
+                )
+            }
     }
 
     override suspend fun getSupplierById(id: String): Supplier? = dbQuery {
@@ -41,12 +56,15 @@ class SupplierRepositoryImpl : SupplierRepository {
             val insertStatement = SuppliersTable.insert {
                 it[id] = newId
                 it[name] = supplierData.name
+                it[description] = supplierData.description
+                it[logoUrl] = supplierData.logoUrl
                 it[contactPerson] = supplierData.contactPerson
                 it[phone] = supplierData.phone
                 it[email] = supplierData.email
                 it[cbu] = supplierData.cbu
                 it[aliasCbu] = supplierData.aliasCbu
                 it[notes] = supplierData.notes
+                it[isActive] = supplierData.isActive
             }
             resultRowToSupplier(insertStatement.resultedValues!!.first())
         }
@@ -55,12 +73,15 @@ class SupplierRepositoryImpl : SupplierRepository {
     override suspend fun updateSupplier(id: String, supplierData: Supplier): Boolean = dbQuery {
         SuppliersTable.update({ SuppliersTable.id eq id }) {
             it[name] = supplierData.name
+            it[description] = supplierData.description
+            it[logoUrl] = supplierData.logoUrl
             it[contactPerson] = supplierData.contactPerson
             it[phone] = supplierData.phone
             it[email] = supplierData.email
             it[cbu] = supplierData.cbu
             it[aliasCbu] = supplierData.aliasCbu
             it[notes] = supplierData.notes
+            it[isActive] = supplierData.isActive
         } > 0
     }
 
@@ -68,12 +89,9 @@ class SupplierRepositoryImpl : SupplierRepository {
         val existingProducts = ProductsTable.selectAll().where { ProductsTable.supplierId eq id }.count()
 
         if (existingProducts > 0) {
-            // Throw a specific, catchable exception instead of letting the DB crash.
-            // Our StatusPages plugin will convert this to a 409 Conflict response.
             throw ConflictException("Cannot delete supplier. Reassign or delete ${existingProducts} associated product(s) first.")
         }
 
-        // If the check passes, proceed with the deletion
         SuppliersTable.deleteWhere { SuppliersTable.id eq id } > 0
     }
 }

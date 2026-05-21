@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: "CatalogKMP API v3.0"
-  description: "RESTful API for the CatalogKMP e-commerce platform, including all features for Phase 3 (Reseller Platform)."
+  title: "KtalogBE API v3.0"
+  description: "RESTful API for the KtalogBE e-commerce platform, including all features for Phase 3 (Reseller Platform)."
   version: "3.0.0"
 servers:
   - url: http://localhost:8080

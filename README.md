@@ -1,6 +1,6 @@
 KtalogBE: E-commerce Catalog Backend
 
-KtalogBE is a modern, production-grade Ktor backend server written in Kotlin that implements a complete e-commerce catalog management system with JWT-based authentication, role-based access control, and database persistence. Despite its "KMP" naming, this is currently a JVM-only backend API serving as a catalog/shopping cart platform.
+KtalogBE is a modern, production-grade Ktor backend server written in Kotlin that implements a complete e-commerce catalog management system with JWT-based authentication, role-based access control, and database persistence.
 
 Core Architecture and Strong Points
 
